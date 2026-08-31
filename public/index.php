@@ -7,3 +7,4 @@ $persona = new Persona();
 $personas = $persona->listar();
 
 print_r($personas);
+?>

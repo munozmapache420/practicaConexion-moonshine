@@ -64,3 +64,4 @@ class Persona
         $this->correo = $correo;
     }
 }
+?>
