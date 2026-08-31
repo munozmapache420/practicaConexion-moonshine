@@ -1,38 +1,35 @@
 <?php
+
 class Database
 {
-    private $host;
-    private $dbname;
-    private $username;
-    private $password;
     private $conexion;
 
     public function __construct()
     {
-        $envFile = __DIR__ . '/../.env';
-        if (file_exists($envFile)) {
-            $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            foreach ($lines as $line) {
-                if (strpos(trim($line), '#') === 0) continue;
-                list($key, $value) = explode('=', $line, 2);
-                $_ENV[trim($key)] = trim($value);
-            }
-        }
+        $env = parse_ini_file(__DIR__ . '/../.env');
 
-        $this->host = $_ENV['DB_HOST'] ?? 'localhost';
-        $this->dbname = $_ENV['DB_NAME'] ?? 'personas';
-        $this->username = $_ENV['DB_USER'] ?? 'root';
-        $this->password = $_ENV['DB_PASS'] ?? '';
+        $host = $env['DB_HOST'];
+        $dbname = $env['DB_NAME'];
+        $username = $env['DB_USER'];
+        $password = $env['DB_PASSWORD'];
 
         try {
+
             $this->conexion = new PDO(
-                "mysql:host=" . $this->host . ";dbname=" . $this->dbname,
-                $this->username,
-                $this->password
+                "mysql:host=$host;dbname=$dbname",
+                $username,
+                $password
             );
-            $this->conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            $this->conexion->setAttribute(
+                PDO::ATTR_ERRMODE,
+                PDO::ERRMODE_EXCEPTION
+            );
+
         } catch (PDOException $e) {
+
             echo "Error de conexión: " . $e->getMessage();
+
         }
     }
 
