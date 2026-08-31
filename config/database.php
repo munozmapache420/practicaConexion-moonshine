@@ -1,45 +1,43 @@
 <?php
-
-$env = parse_ini_file(__DIR__ . '/../.env');
-class database
+class Database
 {
     private $host;
-    private $port;
     private $dbname;
     private $username;
     private $password;
+    private $conexion;
 
     public function __construct()
     {
-        $env = parse_ini_file(__DIR__ . '/../.env');
+        $envFile = __DIR__ . '/../.env';
+        if (file_exists($envFile)) {
+            $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                if (strpos(trim($line), '#') === 0) continue;
+                list($key, $value) = explode('=', $line, 2);
+                $_ENV[trim($key)] = trim($value);
+            }
+        }
 
-        $this->host = $env['DB_HOST'];
-        $this->port = $env['DB_PORT'];
-        $this->dbname = $env['DB_NAME'];
-        $this->username = $env['DB_USER'];
-        $this->password = $env['DB_PASSWORD'];
+        $this->host = $_ENV['DB_HOST'] ?? 'localhost';
+        $this->dbname = $_ENV['DB_NAME'] ?? 'persona_mariana_martinez';
+        $this->username = $_ENV['DB_USER'] ?? 'root';
+        $this->password = $_ENV['DB_PASS'] ?? '';
+
+        try {
+            $this->conexion = new PDO(
+                "mysql:host=" . $this->host . ";dbname=" . $this->dbname,
+                $this->username,
+                $this->password
+            );
+            $this->conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            echo "Error de conexión: " . $e->getMessage();
+        }
     }
 
     public function conectar()
     {
-        return new PDO(
-            "mysql:host={$this->host};port={$this->port};dbname={$this->dbname};charset=utf8mb4",
-            $this->username,
-            $this->password,
-            [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-            ]
-        );
-    }
-
-    public function connect()
-    {
-        return $this->conectar();
-    }
-
-    public function getConnection()
-    {
-        return $this->conectar();
+        return $this->conexion;
     }
 }
