@@ -18,10 +18,10 @@ class Persona
     public function listar()
     {
         $sql = "SELECT * FROM personas";
-        $stmt = $this->conexion->prepare($sql);
-        $stmt->execute();
+        $consulta = $this->conexion->query($sql);
+        $consulta->execute();
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $consulta->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getId()
